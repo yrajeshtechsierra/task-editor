@@ -1,6 +1,7 @@
 /**
- * Task Editor - Fixed Version
+ * Task Editor - Enhanced Version
  * This script allows users to load, edit, and save task data in Excel format
+ * with added automation features
  */
 
 // Global state variables
@@ -114,10 +115,10 @@ elements.processBtn.addEventListener("click", () => {
 
 elements.createDefaultBtn.addEventListener("click", () => {
   workbook = XLSX.utils.book_new();
-  activeSheet = "DefaultTemplate";
+  activeSheet = appConfig.defaultTemplate.name;
 
-  // Create headers
-  activeData = [["Date", "Day", "Tasks", "Hours"]];
+  // Create headers using configuration
+  activeData = [appConfig.defaultTemplate.columns.slice()];
   updateDefaultTemplate();
 
   // Create worksheet
@@ -151,7 +152,7 @@ elements.saveBtn.addEventListener("click", () => {
 
   try {
     const wbout = XLSX.write(workbook, {
-      bookType: "xlsx",
+      bookType: appConfig.file.saveFormat,
       type: "array",
     });
     const blob = new Blob([wbout], { type: "application/octet-stream" });
@@ -162,11 +163,14 @@ elements.saveBtn.addEventListener("click", () => {
     let filename;
     if (elements.fileInput.files[0]) {
       const originalName = elements.fileInput.files[0].name;
-      filename = originalName.replace(/\.[^/.]+$/, "") + "_updated.xlsx";
+      filename =
+        originalName.replace(/\.[^/.]+$/, "") +
+        "_updated." +
+        appConfig.file.saveFormat;
     } else {
       const month = months[parseInt(elements.monthSelect.value)];
       const year = elements.yearInput.value;
-      filename = `Task_Tracker_${month}_${year}.xlsx`;
+      filename = `${appConfig.file.defaultFilename}_${month}_${year}.${appConfig.file.saveFormat}`;
     }
 
     downloadLink.download = filename;
@@ -183,13 +187,13 @@ elements.saveBtn.addEventListener("click", () => {
 });
 
 elements.monthSelect.addEventListener("change", () => {
-  if (activeData && activeSheet === "DefaultTemplate") {
+  if (activeData && activeSheet === appConfig.defaultTemplate.name) {
     updateDefaultTemplate();
   }
 });
 
 elements.yearInput.addEventListener("change", () => {
-  if (activeData && activeSheet === "DefaultTemplate") {
+  if (activeData && activeSheet === appConfig.defaultTemplate.name) {
     updateDefaultTemplate();
   }
 });
@@ -212,19 +216,8 @@ elements.addRowBtn.addEventListener("click", () => {
         let lastDate;
         // Handle different date formats
         if (typeof lastRow[0] === "string") {
-          // Try to parse the date string
-          const dateParts = lastRow[0].split(/[\/\-\.]/);
-          if (dateParts.length === 3) {
-            // Determine format based on structure
-            // Assume MM/DD/YYYY for simplicity, but could be enhanced
-            lastDate = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
-            if (isNaN(lastDate.getTime())) {
-              // Try DD/MM/YYYY format
-              lastDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-            }
-          } else {
-            lastDate = new Date(lastRow[0]);
-          }
+          // Try to parse the date string using our utility function
+          lastDate = parseDate(lastRow[0]);
         } else if (lastRow[0] instanceof Date) {
           lastDate = lastRow[0];
         } else {
