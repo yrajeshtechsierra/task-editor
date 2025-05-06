@@ -1,7 +1,15 @@
+/**
+ * Task Editor - Fixed Version
+ * This script allows users to load, edit, and save task data in Excel format
+ */
+
+// Global state variables
 let workbook = null,
   activeData = null,
   activeSheet = "",
   taskColumnIndex = -1;
+
+// DOM elements
 const elements = {
   fileInput: document.getElementById("fileInput"),
   processBtn: document.getElementById("processBtn"),
@@ -51,6 +59,7 @@ months.forEach((month, i) => {
 const now = new Date();
 elements.monthSelect.value = now.getMonth();
 elements.yearInput.value = now.getFullYear();
+elements.sheetSelector.style.display = "none"; // Hide sheet selector initially
 
 // Event listeners
 elements.fileInput.addEventListener("change", () => {
@@ -62,7 +71,10 @@ elements.fileInput.addEventListener("change", () => {
 
 elements.processBtn.addEventListener("click", () => {
   const file = elements.fileInput.files[0];
-  if (!file) return alert("Please select a file first!");
+  if (!file) {
+    alert("Please select a file first!");
+    return;
+  }
 
   elements.status.textContent = "Reading file...";
   const reader = new FileReader();
@@ -93,7 +105,10 @@ elements.processBtn.addEventListener("click", () => {
     }
   };
 
-  reader.onerror = () => (elements.status.textContent = "Error reading file!");
+  reader.onerror = () => {
+    elements.status.textContent = "Error reading file!";
+  };
+
   reader.readAsArrayBuffer(file);
 });
 
@@ -129,10 +144,10 @@ elements.clearFilterBtn.addEventListener("click", () => {
 });
 
 elements.saveBtn.addEventListener("click", () => {
-  if (!workbook)
-    return alert(
-      "No data to save! Please create a template or load a file first."
-    );
+  if (!workbook) {
+    alert("No data to save! Please create a template or load a file first.");
+    return;
+  }
 
   try {
     const wbout = XLSX.write(workbook, {
@@ -149,8 +164,7 @@ elements.saveBtn.addEventListener("click", () => {
       const originalName = elements.fileInput.files[0].name;
       filename = originalName.replace(/\.[^/.]+$/, "") + "_updated.xlsx";
     } else {
-      const month =
-        elements.monthSelect.options[elements.monthSelect.selectedIndex].text;
+      const month = months[parseInt(elements.monthSelect.value)];
       const year = elements.yearInput.value;
       filename = `Task_Tracker_${month}_${year}.xlsx`;
     }
@@ -159,6 +173,7 @@ elements.saveBtn.addEventListener("click", () => {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(url); // Clean up
 
     elements.status.textContent = "File saved successfully!";
   } catch (error) {
@@ -168,17 +183,23 @@ elements.saveBtn.addEventListener("click", () => {
 });
 
 elements.monthSelect.addEventListener("change", () => {
-  if (activeData && activeSheet === "DefaultTemplate") updateDefaultTemplate();
+  if (activeData && activeSheet === "DefaultTemplate") {
+    updateDefaultTemplate();
+  }
 });
 
 elements.yearInput.addEventListener("change", () => {
-  if (activeData && activeSheet === "DefaultTemplate") updateDefaultTemplate();
+  if (activeData && activeSheet === "DefaultTemplate") {
+    updateDefaultTemplate();
+  }
 });
 
 // Add Row Button
 elements.addRowBtn.addEventListener("click", () => {
-  if (!activeData || activeData.length === 0)
-    return alert("Please load or create a template first!");
+  if (!activeData || activeData.length === 0) {
+    alert("Please load or create a template first!");
+    return;
+  }
 
   const numCols = activeData[0].length;
   const newRow = Array(numCols).fill("");
@@ -187,27 +208,53 @@ elements.addRowBtn.addEventListener("click", () => {
     const lastRow = activeData[activeData.length - 1];
     if (lastRow && lastRow[0]) {
       try {
-        const lastDate = new Date(lastRow[0]);
-        const newDate = new Date(lastDate);
-        newDate.setDate(lastDate.getDate() + 1);
+        // Convert date string to Date object
+        let lastDate;
+        // Handle different date formats
+        if (typeof lastRow[0] === "string") {
+          // Try to parse the date string
+          const dateParts = lastRow[0].split(/[\/\-\.]/);
+          if (dateParts.length === 3) {
+            // Determine format based on structure
+            // Assume MM/DD/YYYY for simplicity, but could be enhanced
+            lastDate = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
+            if (isNaN(lastDate.getTime())) {
+              // Try DD/MM/YYYY format
+              lastDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+            }
+          } else {
+            lastDate = new Date(lastRow[0]);
+          }
+        } else if (lastRow[0] instanceof Date) {
+          lastDate = lastRow[0];
+        } else {
+          // If all else fails, use current date
+          lastDate = new Date();
+        }
 
-        const dateStr = newDate.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
+        if (!isNaN(lastDate.getTime())) {
+          const newDate = new Date(lastDate);
+          newDate.setDate(lastDate.getDate() + 1);
 
-        const dayName = newDate.toLocaleDateString("en-US", {
-          weekday: "long",
-        });
-        const isWeekend = dayName === "Saturday" || dayName === "Sunday";
+          const dateStr = newDate.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          });
 
-        newRow[0] = dateStr;
-        newRow[1] = dayName;
-        newRow[2] = isWeekend ? "OFF/Weekend" : "";
-        newRow[3] = isWeekend ? "0" : "8";
+          const dayName = newDate.toLocaleDateString("en-US", {
+            weekday: "long",
+          });
+          const isWeekend = dayName === "Saturday" || dayName === "Sunday";
+
+          newRow[0] = dateStr;
+          newRow[1] = dayName;
+          newRow[2] = isWeekend ? "OFF/Weekend" : "";
+          newRow[3] = isWeekend ? "0" : "8";
+        }
       } catch (e) {
         console.error("Error setting date for new row:", e);
+        // If date parsing fails, leave the cells empty
       }
     }
   }
@@ -248,10 +295,14 @@ elements.confirmColumnBtn.addEventListener("click", () => {
   }
 
   const newColumnName = elements.columnName.value.trim();
-  if (!newColumnName) return alert("Please enter a column name!");
+  if (!newColumnName) {
+    alert("Please enter a column name!");
+    return;
+  }
 
   activeData[0].push(newColumnName);
   for (let i = 1; i < activeData.length; i++) {
+    activeData[i] = activeData[i] || [];
     activeData[i].push("");
   }
 
@@ -263,8 +314,10 @@ elements.confirmColumnBtn.addEventListener("click", () => {
   elements.status.textContent = "New column added. Don't forget to save!";
 });
 
-// Functions
+// Main functions
 function updateDefaultTemplate() {
+  if (!activeData || !activeData[0]) return;
+
   const selectedMonth = parseInt(elements.monthSelect.value);
   const selectedYear = parseInt(elements.yearInput.value) || now.getFullYear();
 
@@ -297,7 +350,9 @@ function updateDefaultTemplate() {
     workbook.Sheets[activeSheet] = worksheet;
   }
 
-  taskColumnIndex = 2;
+  taskColumnIndex = headers.findIndex((h) => h === "Tasks" || h === "Task");
+  if (taskColumnIndex === -1) taskColumnIndex = 2;
+
   renderTable();
 }
 
@@ -314,6 +369,7 @@ function displaySheetData() {
     return;
   }
 
+  // Find the task column
   taskColumnIndex = activeData[0].findIndex(
     (header) =>
       header === "Tasks" ||
@@ -328,20 +384,28 @@ function displaySheetData() {
 
 function renderTable(filteredData = null) {
   const dataToRender = filteredData || activeData;
-  if (!dataToRender || dataToRender.length === 0) return;
+  if (!dataToRender || dataToRender.length === 0) {
+    elements.dataDisplay.innerHTML = "<p>No data available</p>";
+    return;
+  }
 
-  let tableHTML = '<table id="taskTable"><tr>';
+  let tableHTML = '<table id="taskTable">';
 
-  // Headers
-  dataToRender[0].forEach((header, index) => {
-    tableHTML += `<th data-col="${index}">${header || ""}</th>`;
-  });
-  tableHTML += "</tr>";
+  // Headers row
+  if (dataToRender[0] && dataToRender[0].length > 0) {
+    tableHTML += "<tr>";
+    dataToRender[0].forEach((header, index) => {
+      tableHTML += `<th data-col="${index}">${header || ""}</th>`;
+    });
+    tableHTML += "</tr>";
+  }
 
   // Data rows
   for (let i = 1; i < dataToRender.length; i++) {
     const row = dataToRender[i] || [];
-    const dayCol = dataToRender[0].findIndex((header) => header === "Day");
+    const dayCol = dataToRender[0]
+      ? dataToRender[0].findIndex((header) => header === "Day")
+      : -1;
     const isWeekend =
       dayCol !== -1 &&
       row[dayCol] &&
@@ -352,13 +416,15 @@ function renderTable(filteredData = null) {
       isWeekend ? "weekend-row" : ""
     }">`;
 
+    // Ensure all columns have cells
     for (let j = 0; j < dataToRender[0].length; j++) {
       const cellValue = row[j] !== undefined ? row[j] : "";
       const cellContent = String(cellValue).trim();
 
+      // Make task and hour columns editable
       if (j === taskColumnIndex || j === taskColumnIndex + 1 || j > 3) {
         tableHTML += `<td class="editable" data-row="${i}" data-col="${j}">
-                  <div class="edit-container">${cellContent}</div></td>`;
+                    <div class="edit-container">${cellContent}</div></td>`;
       } else {
         tableHTML += `<td class="non-editable">${cellContent}</td>`;
       }
@@ -381,7 +447,13 @@ function editCell(e) {
 
   const row = parseInt(cell.getAttribute("data-row"));
   const col = parseInt(cell.getAttribute("data-col"));
-  const value = (activeData[row] && activeData[row][col]) || "";
+
+  // Ensure row exists in activeData
+  if (!activeData[row]) {
+    activeData[row] = Array(activeData[0].length).fill("");
+  }
+
+  const value = activeData[row][col] !== undefined ? activeData[row][col] : "";
 
   cell.classList.add("editing");
   const originalContent = cell.innerHTML;
@@ -390,6 +462,7 @@ function editCell(e) {
   const textarea = cell.querySelector("textarea");
   textarea.focus();
 
+  // Auto-adjust height
   textarea.style.height = "auto";
   textarea.style.height = Math.max(50, textarea.scrollHeight) + "px";
 
@@ -398,20 +471,27 @@ function editCell(e) {
     cell.classList.remove("editing");
     cell.innerHTML = `<div class="edit-container">${newValue}</div>`;
 
+    // Update data in memory
     if (!activeData[row]) activeData[row] = [];
     activeData[row][col] = newValue;
 
-    const worksheet = workbook.Sheets[activeSheet];
-    const cellRef = XLSX.utils.encode_cell({ r: row, c: col });
-    worksheet[cellRef] = { v: newValue };
+    // Update Excel sheet
+    if (workbook && activeSheet) {
+      const worksheet = workbook.Sheets[activeSheet];
+      const cellRef = XLSX.utils.encode_cell({ r: row, c: col });
+      if (!worksheet[cellRef]) worksheet[cellRef] = {};
+      worksheet[cellRef].v = newValue;
+    }
 
     elements.status.textContent = "Cell updated. Don't forget to save!";
   };
 
   textarea.addEventListener("blur", finishEditing);
   textarea.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && e.ctrlKey) finishEditing();
-    else if (e.key === "Escape") {
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      finishEditing();
+    } else if (e.key === "Escape") {
       cell.classList.remove("editing");
       cell.innerHTML = originalContent;
     }
@@ -430,11 +510,20 @@ function filterTasks() {
     return;
   }
 
+  if (!activeData || !activeData[0]) {
+    return;
+  }
+
   const filteredData = [activeData[0]];
 
   for (let i = 1; i < activeData.length; i++) {
     const row = activeData[i];
-    const taskCell = row && row[taskColumnIndex];
+    if (!row) continue;
+
+    // If task column doesn't exist for this row, skip it
+    if (taskColumnIndex >= row.length) continue;
+
+    const taskCell = row[taskColumnIndex];
 
     if (taskCell && String(taskCell).toLowerCase().includes(searchTerm)) {
       filteredData.push(row);
@@ -446,3 +535,15 @@ function filterTasks() {
     filteredData.length - 1
   } of ${activeData.length - 1} entries`;
 }
+
+// Add CSS style for weekends
+const style = document.createElement("style");
+style.textContent = `
+  .weekend-row {
+    background-color: #f8f8f8;
+  }
+  .weekend-row td {
+    color: #888;
+  }
+`;
+document.head.appendChild(style);
