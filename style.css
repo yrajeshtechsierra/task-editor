@@ -1,0 +1,152 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  h1 {
+    color: #333;
+    text-align: center;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .control-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #f9f9f9;
+  }
+  .button-group,
+  .file-input-container,
+  .filter-section,
+  .month-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 8px 15px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button {
+    background: #4caf50;
+  }
+  button:hover {
+    background: #45a049;
+  }
+  button.save {
+    background: #007bff;
+  }
+  button.save:hover {
+    background: #0069d9;
+  }
+  button.add {
+    background: #ff9800;
+  }
+  button.add:hover {
+    background: #e68a00;
+  }
+  #data-display {
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 0;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0;
+  }
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 4px 6px;
+    text-align: left;
+    font-size: 14px;
+    vertical-align: top;
+  }
+  td.editable {
+    cursor: pointer;
+    background: #ffffc3;
+  }
+  td.editable:hover {
+    background: #ffff99;
+  }
+  td.non-editable {
+    background: #f9f9f9;
+  }
+  td.editing {
+    padding: 0;
+  }
+  td.editing textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 4px;
+    border: 2px solid #007bff;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+  }
+  th {
+    background: #f2f2f2;
+    position: sticky;
+    top: 0;
+  }
+  .weekend-row {
+    background: #f2f2f2;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .modal-content {
+    background: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  .modal-content input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .search-box {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex-grow: 1;
+  }
+  .sheet-selector {
+    margin-top: 10px;
+    display: none;
+  }
