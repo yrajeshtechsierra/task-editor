@@ -7,94 +7,161 @@
     <link rel="stylesheet" href="css/style.css" />
     <!-- SheetJS (xlsx) library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Font Awesome for better icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
   </head>
   <body>
     <header>
-      <h1>Task Automation System</h1>
-      <nav>
-        <ul>
-          <li><a href="#" class="active">Dashboard</a></li>
-          <li><a href="#">Reports</a></li>
-          <li><a href="#">Settings</a></li>
-        </ul>
-      </nav>
+      <div class="header-container">
+        <h1><i class="fas fa-tasks"></i> Task Automation System</h1>
+        <button id="menuToggle" class="menu-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <nav id="mainNav">
+          <ul>
+            <li>
+              <a href="#" class="active"
+                ><i class="fas fa-chart-pie"></i> Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="#"><i class="fas fa-file-alt"></i> Reports</a>
+            </li>
+            <li>
+              <a href="#"><i class="fas fa-cog"></i> Settings</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
 
     <main>
       <div class="container">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
           <div class="section-header">
-            <h3>Controls</h3>
+            <h3><i class="fas fa-sliders-h"></i> Controls</h3>
           </div>
           <div class="control-section">
-            <div class="file-input-container">
-              <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" />
-              <button id="processBtn" class="primary-btn">Load File</button>
-              <button id="createDefaultBtn" class="secondary-btn">
-                Create Template
-              </button>
-            </div>
-
-            <div class="month-selector">
-              <label for="monthSelect">Month:</label>
-              <select id="monthSelect"></select>
-              <label for="yearInput">Year:</label>
-              <input
-                type="number"
-                id="yearInput"
-                min="2000"
-                max="2100"
-                style="width: 80px"
-              />
-            </div>
-
-            <div class="sheet-selector">
-              <label for="sheetSelect">Sheet:</label>
-              <select id="sheetSelect"></select>
-            </div>
-
-            <div class="filter-section">
-              <input
-                type="text"
-                id="searchBox"
-                class="search-box"
-                placeholder="Search tasks..."
-              />
-              <button id="filterBtn" class="primary-btn">Filter</button>
-              <button id="clearFilterBtn" class="danger-btn">Clear</button>
-            </div>
-
-            <div class="button-group">
-              <button id="addRowBtn" class="success-btn">Add Row</button>
-              <button id="addColumnBtn" class="success-btn">Add Column</button>
-              <button id="saveBtn" class="warning-btn">Save Excel</button>
-            </div>
-
-            <div class="automation-controls">
-              <div class="section-header">
-                <h3>Automation</h3>
+            <div class="panel">
+              <div class="panel-title">File Operations</div>
+              <div class="file-input-container">
+                <div class="file-upload-wrapper">
+                  <label for="fileInput" class="file-label">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Choose File</span>
+                  </label>
+                  <input
+                    type="file"
+                    id="fileInput"
+                    accept=".xlsx, .xls, .csv"
+                  />
+                </div>
+                <div class="button-row">
+                  <button id="processBtn" class="primary-btn">
+                    <i class="fas fa-upload"></i> Load File
+                  </button>
+                  <button id="createDefaultBtn" class="secondary-btn">
+                    <i class="fas fa-file-circle-plus"></i> Template
+                  </button>
+                </div>
               </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Data Selection</div>
+              <div class="month-selector">
+                <div class="input-group">
+                  <label for="monthSelect">Month:</label>
+                  <select id="monthSelect"></select>
+                </div>
+                <div class="input-group">
+                  <label for="yearInput">Year:</label>
+                  <input type="number" id="yearInput" min="2000" max="2100" />
+                </div>
+              </div>
+
+              <div class="sheet-selector">
+                <label for="sheetSelect">Sheet:</label>
+                <select id="sheetSelect"></select>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Search & Filter</div>
+              <div class="filter-section">
+                <div class="search-container">
+                  <input
+                    type="text"
+                    id="searchBox"
+                    class="search-box"
+                    placeholder="Search tasks..."
+                  />
+                </div>
+                <div class="button-row">
+                  <button id="filterBtn" class="primary-btn">
+                    <i class="fas fa-filter"></i> Filter
+                  </button>
+                  <button id="clearFilterBtn" class="danger-btn">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Data Management</div>
+              <div class="button-group">
+                <button id="addRowBtn" class="success-btn">
+                  <i class="fas fa-plus"></i> Add Row
+                </button>
+                <button id="addColumnBtn" class="success-btn">
+                  <i class="fas fa-columns"></i> Add Column
+                </button>
+                <button id="saveBtn" class="warning-btn">
+                  <i class="fas fa-save"></i> Save Excel
+                </button>
+              </div>
+            </div>
+
+            <div class="panel automation-controls">
+              <div class="panel-title">Automation</div>
               <button id="rollForwardBtn" class="primary-btn">
-                Roll Forward Tasks
+                <i class="fas fa-forward"></i> Roll Forward Tasks
               </button>
               <button id="autoFillBtn" class="secondary-btn">
-                Auto-Fill Weekdays
+                <i class="fas fa-calendar-week"></i> Auto-Fill Weekdays
               </button>
               <button id="emailReportBtn" class="warning-btn">
-                Email Report
+                <i class="fas fa-envelope"></i> Email Report
               </button>
             </div>
 
-            <p id="status">No file selected</p>
+            <div class="status-panel">
+              <div id="status">
+                <i class="fas fa-info-circle"></i> No file selected
+              </div>
+              <div class="loader" id="loader"></div>
+            </div>
           </div>
         </div>
 
         <div class="content">
-          <div class="section-header">
-            <h2>Task Data</h2>
+          <div class="section-header content-header">
+            <h2><i class="fas fa-table"></i> Task Data</h2>
+            <div class="header-actions">
+              <button id="toggleSidebarBtn" class="icon-btn">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+            </div>
           </div>
           <div id="data-display">
-            <p>Task data will be displayed here</p>
+            <div class="empty-state">
+              <i class="fas fa-file-import empty-icon"></i>
+              <p>Upload a file to view task data</p>
+            </div>
           </div>
         </div>
       </div>
@@ -103,12 +170,27 @@
     <!-- Add Column Modal -->
     <div id="columnModal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Add New Column</h3>
-        <input type="text" id="columnName" placeholder="Enter column name" />
-        <div class="modal-buttons">
-          <button id="cancelColumnBtn" class="secondary-btn">Cancel</button>
-          <button id="confirmColumnBtn" class="primary-btn">Add</button>
+        <div class="modal-header">
+          <h3><i class="fas fa-columns"></i> Add New Column</h3>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="columnName">Column Name:</label>
+            <input
+              type="text"
+              id="columnName"
+              placeholder="Enter column name"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelColumnBtn" class="secondary-btn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button id="confirmColumnBtn" class="primary-btn">
+            <i class="fas fa-check"></i> Add
+          </button>
         </div>
       </div>
     </div>
@@ -116,54 +198,61 @@
     <!-- Automation Modal -->
     <div id="automationModal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Automation Settings</h3>
-        <div class="form-group">
-          <label for="automationType">Choose Automation:</label>
-          <select id="automationType">
-            <option value="rollForward">Roll Forward Tasks</option>
-            <option value="fillDays">Auto-Fill Weekdays</option>
-            <option value="emailReport">Email Report</option>
-          </select>
+        <div class="modal-header">
+          <h3><i class="fas fa-robot"></i> Automation Settings</h3>
+          <span class="close">&times;</span>
         </div>
-
-        <div id="rollForwardOptions" class="automation-options">
+        <div class="modal-body">
           <div class="form-group">
-            <label>Select Tasks to Roll Forward:</label>
-            <div id="taskCheckboxes" class="checkbox-list">
-              <!-- Checkboxes will be populated dynamically -->
+            <label for="automationType">Choose Automation:</label>
+            <select id="automationType">
+              <option value="rollForward">Roll Forward Tasks</option>
+              <option value="fillDays">Auto-Fill Weekdays</option>
+              <option value="emailReport">Email Report</option>
+            </select>
+          </div>
+
+          <div id="rollForwardOptions" class="automation-options">
+            <div class="form-group">
+              <label>Select Tasks to Roll Forward:</label>
+              <div id="taskCheckboxes" class="checkbox-list">
+                <!-- Checkboxes will be populated dynamically -->
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="rollForwardDays">Days to Roll Forward:</label>
+              <input
+                type="number"
+                id="rollForwardDays"
+                min="1"
+                max="30"
+                value="1"
+              />
             </div>
           </div>
-          <div class="form-group">
-            <label for="rollForwardDays">Days to Roll Forward:</label>
-            <input
-              type="number"
-              id="rollForwardDays"
-              min="1"
-              max="30"
-              value="1"
-            />
+
+          <div id="emailOptions" class="automation-options">
+            <div class="form-group">
+              <label for="emailRecipient">Email Recipient:</label>
+              <input
+                type="email"
+                id="emailRecipient"
+                placeholder="recipient@example.com"
+              />
+            </div>
+            <div class="form-group">
+              <label for="emailSubject">Subject:</label>
+              <input type="text" id="emailSubject" placeholder="Task Report" />
+            </div>
           </div>
         </div>
-
-        <div id="emailOptions" class="automation-options">
-          <div class="form-group">
-            <label for="emailRecipient">Email Recipient:</label>
-            <input
-              type="email"
-              id="emailRecipient"
-              placeholder="recipient@example.com"
-            />
-          </div>
-          <div class="form-group">
-            <label for="emailSubject">Subject:</label>
-            <input type="text" id="emailSubject" placeholder="Task Report" />
-          </div>
-        </div>
-
-        <div class="modal-buttons">
-          <button id="cancelAutomationBtn" class="secondary-btn">Cancel</button>
-          <button id="runAutomationBtn" class="primary-btn">Run</button>
+        <div class="modal-footer">
+          <button id="cancelAutomationBtn" class="secondary-btn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button id="runAutomationBtn" class="primary-btn">
+            <i class="fas fa-play"></i> Run
+          </button>
         </div>
       </div>
     </div>
